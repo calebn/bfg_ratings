@@ -1,5 +1,8 @@
 <?php
 
+$root_directory = dirname(__FILE__);
+$cache_dir = $root_directory.DIRECTORY_SEPARATOR."cache".DIRECTORY_SEPARATOR;
+
 /**
 * Auto loader, will automatically auto load necessary classes, replaces _ with /
 * @param string $class The name of the file to auto load
@@ -23,8 +26,7 @@ spl_autoload_register('my_autoloader');
  *  @return  string
  *  @author  Caleb Nelson <calebnelson@mac.com>
  */
-function auto_version($file)
-{
+function auto_version($file){
     if(!file_exists($file))
             return $file;
         $new_name = $file.'?'.md5_file($file);
@@ -44,5 +46,31 @@ function prettyPrint($var){
     $response .= $ob_get_clean()."</pre";
     return $response;
 }
+
+
+/**
+* Checks to see if a URL exists
+* @param $url The url to check
+* @link http://stackoverflow.com/a/2280413
+*/
+function url_exists($url) {
+    if (!$fp = curl_init($url)) return false;
+    return true;
+}
+
+class WarningException              extends ErrorException {}
+class ParseException                extends ErrorException {}
+class NoticeException               extends ErrorException {}
+class CoreErrorException            extends ErrorException {}
+class CoreWarningException          extends ErrorException {}
+class CompileErrorException         extends ErrorException {}
+class CompileWarningException       extends ErrorException {}
+class UserErrorException            extends ErrorException {}
+class UserWarningException          extends ErrorException {}
+class UserNoticeException           extends ErrorException {}
+class StrictException               extends ErrorException {}
+class RecoverableErrorException     extends ErrorException {}
+class DeprecatedException           extends ErrorException {}
+class UserDeprecatedException       extends ErrorException {}
 
 ?>

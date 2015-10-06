@@ -3,7 +3,7 @@
  * StaticHTMLWriter is used to write static HTML pages for this site
  * @author  Caleb Nelson <calebnelson@mac.com>
  */
-abstract class StaticHTMLWriter extends BaseLibClass{
+abstract class v_StaticHTMLWriter extends BaseLibClass{
     /**
      * Uses the provided parameters to get the static HTML for this site's header
      * @param  array $head_params Optional associative array with any configuration parameters necessary to write the header
@@ -23,7 +23,7 @@ abstract class StaticHTMLWriter extends BaseLibClass{
      * @param  array $head_params Optional associative array with any configuration parameters necessary to write the header
      * @return array A standard form response associative array $response = array('status' => {'warning'|'failure'|'success'}, 'message' => {message}, 'data'=> {data})
      */
-    abstract function getHeader($head_params=null);
+    abstract protected function getHeader($head_params=null);
 
     /**
      * Uses the provided parameters to get the static HTML for this site's body
@@ -44,7 +44,7 @@ abstract class StaticHTMLWriter extends BaseLibClass{
      * @param  array $body_params Optional associative array with any configuration parameters necessary to write the body
      * @return array A standard form response associative array $response = array('status' => {'warning'|'failure'|'success'}, 'message' => {message}, 'data'=> {data})
      */
-    abstract function getBody($body_params=null);
+    abstract protected function getBody($body_params=null);
 
     /**
      * Uses the provided parameters to get the static HTML for this site's footer
@@ -65,6 +65,6 @@ abstract class StaticHTMLWriter extends BaseLibClass{
      * @param  array $foot_params Optional associative array with any configuration parameters necessary to write the footer
      * @return array A standard form response associative array $response = array('status' => {'warning'|'failure'|'success'}, 'message' => {message}, 'data'=> {data})
      */
-    abstract function getfooter($foot_params=null);
+    abstract protected function getfooter($foot_params=null);
 }
-?
+?>

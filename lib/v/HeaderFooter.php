@@ -1,23 +1,29 @@
 <?php
 class v_HeaderFooter{
-	function getHeader($params){
+	public function getHeader($head_params=null){
 		ob_start();
 		?>
 			<html>
 				<head>
-					<title><?php echo $params['title']; ?></title>
+					<title><?php echo $head_params['title']; ?></title>
 					<link rel="stylesheet" href="<?php echo auto_version('lib/v/base.css'); ?>" type="text/css" />
+					<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 				</head>
 				<body>
 		<?php
-			return ob_get_clean();
+		return ob_get_clean();
+	}
+
+	function yell(){
+		echo "i AM ALIVE";
 	}
 	
-	function getFooter(){
+	public function getFooter($foot_params=null){
 		ob_start();
 		?>
-		</body>
-		</html>
+				<script src="<?php echo auto_version('lib/v/base.js'); ?>" type="text/javascript"></script>
+			</body>
+			</html>
 		<?php
 		return ob_get_clean();
 	}
