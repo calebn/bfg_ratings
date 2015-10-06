@@ -92,6 +92,7 @@ class m_Rating extends BaseLibClass{
 				$this->saveCache();
 				return $this->successMessage($app_pages,"Got ".count($app_pages)." game urls");
 			}else{
+				$this->saveCache();
 				return $this->successMessage($this->unprocessed_game_urls,"Got ".count($this->unprocessed_game_urls)." unprocessed game urls");
 			}
 		}catch(Exception $e){
