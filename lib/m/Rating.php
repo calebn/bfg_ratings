@@ -1,6 +1,6 @@
 <?php
 require_once('util.php');
-require_once("lib/c/SimpleHTMLDom.php");
+require_once("lib/c/SimpleHtmlDom.php");
 /**
 * Gets ratings info from apple.com
 */
@@ -12,7 +12,7 @@ class m_Rating extends BaseLibClass{
 	private $cached_processed_game_urls;
 	private $cached_unprocessed_game_urls;
 	private $cached_insufficient_ratings;
-	private $ratings;
+	private $rating_info;
 	private $processed_game_urls;
 	private $unprocessed_game_urls;
 	private $insufficient_ratings;
@@ -28,28 +28,27 @@ class m_Rating extends BaseLibClass{
 	private $num_ratings_search_string='span[itemprop=reviewCount]';
 
 	public function __construct($cache_path){
+		set_time_limit(0);
 		$this->cached_processed_game_urls=$cache_path."processed";
 		$this->cached_unprocessed_game_urls=$cache_path."unprocessed";
-		$this->cached_rating_info=$cache_path."ratings";
+		$this->cached_rating_info=$cache_path."rating_info";
 		$this->cached_insufficient_ratings=$cache_path."insufficient_ratings";
 		parent::__construct();
 		$this->current_page=1;
-		set_time_limit(0);
+		$this->loadCache();
 	}
 
-	public function getRatingInfo($iPhoneGameURLs){
+	public function getRatingInfo(){
 		try{
-			$rating_info=array();
-			$not_enough_ratings=array();
 
-			foreach($iPhoneGameURLs as $key => $url){
+			foreach($unprocessed_game_urls as $key => $url){
 				$html = file_get_html($url);
 				$h1 = $html->find($this->title_search_string,0);
 				$title = $h1->plaintext;
 				$left_div = $html->find($this->left_stack_search_string,0);
 				$rating_span= $left_div->find($this->rating_search_string,0);
 				if($rating_span==null){
-					$not_enough_ratings[]=$title;
+					$this->insufficient_ratings[]=$title;
 					continue;
 				}
 				$rating = floatval($rating_span->plaintext);
@@ -57,29 +56,43 @@ class m_Rating extends BaseLibClass{
 				$num_ratings = intval(str_replace(array(' Ratings',' Rating'), '', $num_ratings_span->plaintext));
 				$last_update_span=$left_div->find($this->last_update_search_string,0);
 				$last_update = strtotime($last_update_span->plaintext);
-				$rating_info[] = array(
+				$this->rating_info[] = array(
 					'title'=>$title,
 					'rating'=>$rating,
 					'num_ratings'=>$num_ratings,
 					'last_update'=>$last_update
 				);
+				$this->processed_game_urls[]=$url;
+				unset($this->unprocessed_game_urls[$key]);
 			}
-			return $this->successMessage($rating_info,"Got ratings for ".count($rating_info)." games");
+			$this->saveCache();
+			return $this->successMessage($this->rating_info,"Got ratings for ".count($this->rating_info)." games");
 		}catch(Exception $e){
+			$this->saveCache();
 			return $this->failureMessage($url,$this->printException($e));
 		}
 	}
 	public function getIphoneAppPages(){
 		try{
-			$app_pages = array();
-			do{
-				$this->current_html = file_get_html($this->bfg_iphone.$this->current_page);
-				$new_pages = $this->getIphoneGameURLs();
-				$app_pages = array_merge($app_pages,$new_pages);
-				$this->current_page++;
-			}while($this->nextPageExists());
-			return $this->successMessage($app_pages,"Got ".count($app_pages)." game urls");
+			if(count($this->unprocessed_game_urls)==0 && count($this->processed_game_urls)==0){
+				$app_pages = array();
+				do{
+					$this->current_html = file_get_html($this->bfg_iphone.$this->current_page);
+					$new_pages = $this->getIphoneGameURLs();
+					$app_pages = array_merge($app_pages,$new_pages);
+					$this->current_page++;
+				}while($this->nextPageExists());
+				$this->unprocessed_game_urls=$app_pages;
+				$this->processed_game_urls=array();
+				$this->insufficient_ratings=array();
+				$this->rating_info=array();
+				$this->saveCache();
+				return $this->successMessage($app_pages,"Got ".count($app_pages)." game urls");
+			}else{
+				return $this->unprocessed_game_urls;
+			}
 		}catch(Exception $e){
+			$this->saveCache();
 			return $this->failureMessage("",$this->printException($e));
 		}
 	}

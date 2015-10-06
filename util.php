@@ -1,6 +1,6 @@
 <?php
 
-$root_directory = dirname(__FILE__);
+$root_directory = __DIR__;
 $cache_dir = $root_directory.DIRECTORY_SEPARATOR."cache".DIRECTORY_SEPARATOR;
 
 /**
