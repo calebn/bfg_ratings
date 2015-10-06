@@ -1,7 +1,6 @@
 <?php
 require_once('util.php');
 class c_Rating extends BaseLibClass{
-	private $cache_path;
 	/**
 	 * Game tiles and rating
 	 * @var array
@@ -15,7 +14,6 @@ class c_Rating extends BaseLibClass{
 	
 
 	public function __construct($cache_path){
-		$this->cache_path=$cache_path;
 		parent::__construct();
 		$this->m_rating = new m_Rating($cache_path);
 	}
@@ -28,6 +26,16 @@ class c_Rating extends BaseLibClass{
 		$m_response = $this->m_rating->getRatingInfo($m_response['data']);
 		return $m_response;
 
+	}
+
+	public function clearCache(){
+		try{
+			unlink($this->$cached_processed_game_urls);
+			unlink($this->$cached_unprocessed_game_urls);
+			unlink($this->$cached_ratings);
+		}catch(Exception $e){
+			return $this->failureMessage("",$this->printException($e));
+		}
 	}
 }
 ?>
