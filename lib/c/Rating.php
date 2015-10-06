@@ -26,15 +26,5 @@ class c_Rating extends BaseLibClass{
 		$m_response = $this->m_rating->getRatingInfo();
 		return $m_response;
 	}
-
-	public function clearCache(){
-		try{
-			unlink($this->$cached_processed_game_urls);
-			unlink($this->$cached_unprocessed_game_urls);
-			unlink($this->$cached_ratings);
-		}catch(Exception $e){
-			return $this->failureMessage("",$this->printException($e));
-		}
-	}
 }
 ?>

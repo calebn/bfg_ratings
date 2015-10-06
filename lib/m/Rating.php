@@ -44,7 +44,7 @@ class m_Rating extends BaseLibClass{
 	public function getRatingInfo(){
 		try{
 
-			foreach($unprocessed_game_urls as $key => $url){
+			foreach($this->unprocessed_game_urls as $key => $url){
 				$html = file_get_html($url);
 				$h1 = $html->find($this->title_search_string,0);
 				$title = $h1->plaintext;
@@ -72,7 +72,7 @@ class m_Rating extends BaseLibClass{
 			return $this->successMessage($this->rating_info,"Got ratings for ".count($this->rating_info)."/".count($this->unprocessed_game_urls)+count($this->processed_game_urls)." games. ");
 		}catch(Exception $e){
 			$this->saveCache();
-			return $this->failureMessage($url,$this->printException($e));
+			return $this->failureMessage('',$this->printException($e));
 		}
 	}
 	public function getIphoneAppPages(){
@@ -92,7 +92,7 @@ class m_Rating extends BaseLibClass{
 				$this->saveCache();
 				return $this->successMessage($app_pages,"Got ".count($app_pages)." game urls");
 			}else{
-				return $this->unprocessed_game_urls;
+				return $this->successMessage($this->unprocessed_game_urls,"Got ".count($this->unprocessed_game_urls)." unprocessed game urls");
 			}
 		}catch(Exception $e){
 			$this->saveCache();
