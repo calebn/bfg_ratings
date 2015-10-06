@@ -57,7 +57,7 @@ class m_Rating extends BaseLibClass{
 				$num_ratings = intval(str_replace(array(' Ratings',' Rating'), '', $num_ratings_span->plaintext));
 				$last_update_span=$left_div->find($this->last_update_search_string,0);
 				$last_update = strtotime($last_update_span->plaintext);
-				$rating_info[] = array(
+				$this->rating_info[] = array(
 					'title'=>$title,
 					'rating'=>$rating,
 					'num_ratings'=>$num_ratings,
