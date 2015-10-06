@@ -2,7 +2,9 @@
 
 $root_directory = __DIR__;
 $cache_dir = $root_directory.DIRECTORY_SEPARATOR."cache".DIRECTORY_SEPARATOR;
-
+if(!file_exists($cache_dir)){
+    mkdir($cache_dir);
+}
 /**
 * Auto loader, will automatically auto load necessary classes, replaces _ with /
 * @param string $class The name of the file to auto load

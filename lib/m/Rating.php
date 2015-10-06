@@ -27,14 +27,17 @@ class m_Rating extends BaseLibClass{
 	private $rating_search_string='span[itemprop=ratingValue]';
 	private $num_ratings_search_string='span[itemprop=reviewCount]';
 
-	public function __construct($cache_path){
-		set_time_limit(0);
+	public function __construct($cache_path,$clear_cache=false){
+		set_time_limit(60);
 		$this->cached_processed_game_urls=$cache_path."processed";
 		$this->cached_unprocessed_game_urls=$cache_path."unprocessed";
 		$this->cached_rating_info=$cache_path."rating_info";
 		$this->cached_insufficient_ratings=$cache_path."insufficient_ratings";
 		parent::__construct();
 		$this->current_page=1;
+		if($clear_cache){
+			$this->clearCache();
+		}
 		$this->loadCache();
 	}
 
@@ -66,7 +69,7 @@ class m_Rating extends BaseLibClass{
 				unset($this->unprocessed_game_urls[$key]);
 			}
 			$this->saveCache();
-			return $this->successMessage($this->rating_info,"Got ratings for ".count($this->rating_info)." games");
+			return $this->successMessage($this->rating_info,"Got ratings for ".count($this->rating_info)."/".count($this->unprocessed_game_urls)+count($this->processed_game_urls)." games. ");
 		}catch(Exception $e){
 			$this->saveCache();
 			return $this->failureMessage($url,$this->printException($e));
@@ -138,6 +141,13 @@ class m_Rating extends BaseLibClass{
 		file_put_contents($this->cached_processed_game_urls, serialize($this->processed_game_urls));
 		file_put_contents($this->cached_unprocessed_game_urls, serialize($this->unprocessed_game_urls));
 		file_put_contents($this->cached_insufficient_ratings, serialize($this->insufficient_ratings));
+	}
+
+	private function clearCache(){
+		file_put_contents($this->cached_rating_info,serialize(array()));
+		file_put_contents($this->cached_processed_game_urls,serialize(array()));
+		file_put_contents($this->cached_unprocessed_game_urls,serialize(array()));
+		file_put_contents($this->cached_insufficient_ratings,serialize(array()));
 	}
 }
 ?>

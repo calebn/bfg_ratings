@@ -13,19 +13,18 @@ class c_Rating extends BaseLibClass{
 	private $m_rating;
 	
 
-	public function __construct($cache_path){
+	public function __construct($cache_path,$clear_cache=false){
 		parent::__construct();
-		$this->m_rating = new m_Rating($cache_path);
+		$this->m_rating = new m_Rating($cache_path,$clear_cache);
 	}
 
-	public function refreshRatingInfo(){
+	public function processRatingInfo(){
 		$m_response = $this->m_rating->getIphoneAppPages();
-		if($m_response['status']=='failure'){
+		if($m_response['status']!='success'){
 			return $m_response;
 		}
-		$m_response = $this->m_rating->getRatingInfo($m_response['data']);
+		$m_response = $this->m_rating->getRatingInfo();
 		return $m_response;
-
 	}
 
 	public function clearCache(){
