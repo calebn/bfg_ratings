@@ -2,9 +2,7 @@
 
 $root_directory = __DIR__;
 $cache_dir = $root_directory.DIRECTORY_SEPARATOR."cache".DIRECTORY_SEPARATOR;
-if(!file_exists($cache_dir)){
-    mkdir($cache_dir);
-}
+
 /**
 * Auto loader, will automatically auto load necessary classes, replaces _ with /
 * @param string $class The name of the file to auto load
@@ -47,6 +45,35 @@ function prettyPrint($var){
     print_r($var);
     $response .= $ob_get_clean()."</pre";
     return $response;
+}
+
+/**
+ * Generic Binary Search
+ * @param  array  $a       The sorted haystack
+ * @param  mixed $first   First index of the array to be searched (inclusive).
+ * @param  mixed $last    Last index of the array to be searched (exclusive).
+ * @param  mixed $key     The key to be searched for.
+ * @param  string $compare A user defined function for comparison. Same definition as the one in usort
+ * @return integer         index of the search key if found, otherwise return (-insert_index - 1). insert_index is the index of smallest element that is greater than $key or sizeof($a) if $key is larger than all elements in the array.
+ * @link   https://terenceyim.wordpress.com/2011/02/01/all-purpose-binary-search-in-php/
+ */
+function binary_search(array $a, $first, $last, $key, $compare) {
+    $lo = $first; 
+    $hi = $last - 1;
+
+    while ($lo <= $hi) {
+        $mid = (int)(($hi - $lo) / 2) + $lo;
+        $cmp = call_user_func($compare, $a[$mid], $key);
+
+        if ($cmp < 0) {
+            $lo = $mid + 1;
+        } elseif ($cmp > 0) {
+            $hi = $mid - 1;
+        } else {
+            return $mid;
+        }
+    }
+    return -($lo + 1);
 }
 
 

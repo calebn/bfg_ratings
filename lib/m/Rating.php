@@ -7,7 +7,6 @@ require_once("lib/c/SimpleHtmlDom.php");
 class m_Rating extends BaseLibClass{
 	private $bfg_iphone = "https://itunes.apple.com/us/developer/big-fish-games-inc/id292594310?iPhoneSoftwarePage=";
 	private $current_page;
-	private $current_html;
 	private $cached_rating_info;
 	private $cached_processed_game_urls;
 	private $cached_unprocessed_game_urls;
@@ -20,19 +19,21 @@ class m_Rating extends BaseLibClass{
 	 * Search to use to find iphone ratings
 	 * @var string
 	 */
-	private $iphone_div_search_string='div[metrics-loc=Titledbox_iPhone Apps]';
-	private $title_search_string='div[id=title] h1';
-	private $left_stack_search_string='div[id=left-stack]';
-	private $last_update_search_string='span[itemprop=datePublished]';
-	private $rating_search_string='span[itemprop=ratingValue]';
+	private $iphone_div_search_string= 'div[metrics-loc=Titledbox_iPhone Apps]';
+	private $game_url_search_string=   'div[class=lockup-info] a[class=name]';
+	private $next_button_search_string='a[class=paginate-more]';
+	private $title_search_string=      'div[id=title] h1';
+	private $left_stack_search_string= 'div[id=left-stack]';
+	private $date_search_string='span[itemprop=datePublished]';
+	private $rating_search_string=     'span[itemprop=ratingValue]';
 	private $num_ratings_search_string='span[itemprop=reviewCount]';
 
 	public function __construct($cache_path,$clear_cache=false){
 		set_time_limit(60);
-		$this->cached_processed_game_urls=$cache_path."processed";
-		$this->cached_unprocessed_game_urls=$cache_path."unprocessed";
-		$this->cached_rating_info=$cache_path."rating_info";
-		$this->cached_insufficient_ratings=$cache_path."insufficient_ratings";
+		$this->cached_processed_game_urls=   $cache_path."processed";
+		$this->cached_unprocessed_game_urls= $cache_path."unprocessed";
+		$this->cached_rating_info=           $cache_path."rating_info";
+		$this->cached_insufficient_ratings=  $cache_path."insufficient_ratings";
 		parent::__construct();
 		$this->current_page=1;
 		if($clear_cache){
@@ -43,29 +44,28 @@ class m_Rating extends BaseLibClass{
 
 	public function getRatingInfo(){
 		try{
-
 			foreach($this->unprocessed_game_urls as $key => $url){
-				$html = file_get_html($url);
-				$h1 = $html->find($this->title_search_string,0);
-				$title = $h1->plaintext;
-				$left_div = $html->find($this->left_stack_search_string,0);
+				$html =       file_get_html($url);
+				$h1 =         $html->find($this->title_search_string,0);
+				$title =      $h1->plaintext;
+				$left_div =   $html->find($this->left_stack_search_string,0);
 				$rating_span= $left_div->find($this->rating_search_string,0);
 				if($rating_span==null){
 					$this->insufficient_ratings[]=$title;
 					continue;
 				}
-				$rating = floatval($rating_span->plaintext);
-				$num_ratings_span=$left_div->find($this->num_ratings_search_string,0);
-				$num_ratings = intval(str_replace(array(' Ratings',' Rating'), '', $num_ratings_span->plaintext));
-				$last_update_span=$left_div->find($this->last_update_search_string,0);
-				$last_update = strtotime($last_update_span->plaintext);
+				$rating =              floatval($rating_span->plaintext);
+				$num_ratings_span =    $left_div->find($this->num_ratings_search_string,0);
+				$num_ratings =         intval(str_replace(array(' Ratings',' Rating'), '', $num_ratings_span->plaintext));
+				$date_span =    $left_div->find($this->date_search_string,0);
+				$date =         strtotime($date_span->plaintext);
 				$this->rating_info[] = array(
 					'title'=>$title,
 					'rating'=>$rating,
 					'num_ratings'=>$num_ratings,
-					'last_update'=>$last_update
+					'date'=>$date
 				);
-				$this->processed_game_urls[]=$url;
+				$this->processed_game_urls[] = $url;
 				unset($this->unprocessed_game_urls[$key]);
 			}
 			$this->saveCache();
@@ -75,14 +75,15 @@ class m_Rating extends BaseLibClass{
 			return $this->failureMessage('',$this->printException($e));
 		}
 	}
+
 	public function getIphoneAppPages(){
 		try{
 			if(count($this->unprocessed_game_urls)==0 && count($this->processed_game_urls)==0){
 				$app_pages = array();
 				do{
 					$this->current_html = file_get_html($this->bfg_iphone.$this->current_page);
-					$new_pages = $this->getIphoneGameURLs();
-					$app_pages = array_merge($app_pages,$new_pages);
+					$new_pages =          $this->getIphoneGameURLs();
+					$app_pages =          array_merge($app_pages,$new_pages);
 					$this->current_page++;
 				}while($this->nextPageExists());
 				$this->unprocessed_game_urls=$app_pages;
@@ -103,14 +104,14 @@ class m_Rating extends BaseLibClass{
 
 	private function getIphoneGameURLs(){
 		$iphone_div = $this->current_html->find($this->iphone_div_search_string,-1);
-		foreach($iphone_div->find('div[class=lockup-info] a[class=name]') as $a){
+		foreach($iphone_div->find($this->game_url_search_string) as $a){
 			$game_urls[] = $a->href;
 		}
 		return $game_urls;
 	}
 
 	private function nextPageExists(){
-		$next_button = $this->current_html->find($this->iphone_div_search_string.' a[class=paginate-more]',-1);
+		$next_button = $this->current_html->find($this->iphone_div_search_string.' '.$this->next_button_search_string,-1);
 		return is_object($next_button);
 	}
 
