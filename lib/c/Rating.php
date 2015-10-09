@@ -12,7 +12,7 @@ class c_Rating extends BaseLibClass{
 	 */
 	private $m_rating;
 
-	private $bfg_founded_date = '2002';
+	private $app_store_launch_date = '07/10/2008';
 
 	private $subset_total_ratings = 0;
 
@@ -129,7 +129,7 @@ class c_Rating extends BaseLibClass{
 		$this->subset_total_ratings=0;
 		$idx = 0;
 		if(isset($start) || isset($end)){
-			$start =  isset($start) ? strtotime($start) : strtotime($this->bfg_founded_date);
+			$start =  isset($start) ? strtotime($start) : strtotime($this->app_store_launch_date);
 			$idx = $this->getRatingStartIndex($start);
 		}
 		while($idx < count($this->rating_info)){
