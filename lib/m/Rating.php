@@ -29,7 +29,6 @@ class m_Rating extends BaseLibClass{
 	private $num_ratings_search_string='span[itemprop=reviewCount]';
 
 	public function __construct($cache_path,$clear_cache=false){
-		set_time_limit(60);
 		$this->cached_processed_game_urls=   $cache_path."processed";
 		$this->cached_unprocessed_game_urls= $cache_path."unprocessed";
 		$this->cached_rating_info=           $cache_path."rating_info";
@@ -52,6 +51,7 @@ class m_Rating extends BaseLibClass{
 				$rating_span= $left_div->find($this->rating_search_string,0);
 				if($rating_span==null){
 					$this->insufficient_ratings[]=$title;
+					unset($this->unprocessed_game_urls[$key]);
 					continue;
 				}
 				$rating =              floatval($rating_span->plaintext);
@@ -67,6 +67,9 @@ class m_Rating extends BaseLibClass{
 				);
 				$this->processed_game_urls[] = $url;
 				unset($this->unprocessed_game_urls[$key]);
+				if($key%10==0){
+					$this->saveCache();
+				}
 			}
 			$this->saveCache();
 			return $this->successMessage($this->rating_info,"Got ratings for ".count($this->rating_info)."/".count($this->unprocessed_game_urls)+count($this->processed_game_urls)." games. ");
@@ -117,39 +120,39 @@ class m_Rating extends BaseLibClass{
 
 	private function loadCache(){
 		if(file_exists($this->cached_rating_info)){
-			$this->rating_info=unserialize(file_get_contents($this->cached_rating_info));
+			$this->rating_info=json_decode(file_get_contents($this->cached_rating_info),true);
 		}else{
 			$this->rating_info=array();
 		}
 		if(file_exists($this->cached_processed_game_urls)){
-			$this->processed_game_urls=unserialize(file_get_contents($this->cached_processed_game_urls));
+			$this->processed_game_urls=json_decode(file_get_contents($this->cached_processed_game_urls),true);
 		}else{
 			$this->processed_game_urls=array();
 		}
 		if(file_exists($this->cached_unprocessed_game_urls)){
-			$this->unprocessed_game_urls=unserialize(file_get_contents($this->cached_unprocessed_game_urls));
+			$this->unprocessed_game_urls=json_decode(file_get_contents($this->cached_unprocessed_game_urls),true);
 		}else{
 			$this->unprocessed_game_urls=array();
 		}
 		if(file_exists($this->cached_insufficient_ratings)){
-			$this->insufficient_ratings=unserialize(file_get_contents($this->cached_insufficient_ratings));
+			$this->insufficient_ratings=json_decode(file_get_contents($this->cached_insufficient_ratings),true);
 		}else{
 			$this->insufficient_ratings=array();
 		}
 	}
 
 	private function saveCache(){
-		file_put_contents($this->cached_rating_info, serialize($this->rating_info));
-		file_put_contents($this->cached_processed_game_urls, serialize($this->processed_game_urls));
-		file_put_contents($this->cached_unprocessed_game_urls, serialize($this->unprocessed_game_urls));
-		file_put_contents($this->cached_insufficient_ratings, serialize($this->insufficient_ratings));
+		file_put_contents($this->cached_rating_info, json_encode($this->rating_info));
+		file_put_contents($this->cached_processed_game_urls, json_encode($this->processed_game_urls));
+		file_put_contents($this->cached_unprocessed_game_urls, json_encode($this->unprocessed_game_urls));
+		file_put_contents($this->cached_insufficient_ratings, json_encode($this->insufficient_ratings));
 	}
 
 	private function clearCache(){
-		file_put_contents($this->cached_rating_info,serialize(array()));
-		file_put_contents($this->cached_processed_game_urls,serialize(array()));
-		file_put_contents($this->cached_unprocessed_game_urls,serialize(array()));
-		file_put_contents($this->cached_insufficient_ratings,serialize(array()));
+		file_put_contents($this->cached_rating_info,json_encode(array()));
+		file_put_contents($this->cached_processed_game_urls,json_encode(array()));
+		file_put_contents($this->cached_unprocessed_game_urls,json_encode(array()));
+		file_put_contents($this->cached_insufficient_ratings,json_encode(array()));
 	}
 }
 ?>

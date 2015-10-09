@@ -47,35 +47,6 @@ function prettyPrint($var){
     return $response;
 }
 
-/**
- * Generic Binary Search
- * @param  array  $a       The sorted haystack
- * @param  mixed $first   First index of the array to be searched (inclusive).
- * @param  mixed $last    Last index of the array to be searched (exclusive).
- * @param  mixed $key     The key to be searched for.
- * @param  string $compare A user defined function for comparison. Same definition as the one in usort
- * @return integer         index of the search key if found, otherwise return (-insert_index - 1). insert_index is the index of smallest element that is greater than $key or sizeof($a) if $key is larger than all elements in the array.
- * @link   https://terenceyim.wordpress.com/2011/02/01/all-purpose-binary-search-in-php/
- */
-function binary_search(array $a, $first, $last, $key, $compare) {
-    $lo = $first; 
-    $hi = $last - 1;
-
-    while ($lo <= $hi) {
-        $mid = (int)(($hi - $lo) / 2) + $lo;
-        $cmp = call_user_func($compare, $a[$mid], $key);
-
-        if ($cmp < 0) {
-            $lo = $mid + 1;
-        } elseif ($cmp > 0) {
-            $hi = $mid - 1;
-        } else {
-            return $mid;
-        }
-    }
-    return -($lo + 1);
-}
-
 
 /**
 * Checks to see if a URL exists
